@@ -207,5 +207,36 @@ void C업무용Dlg::jobKindSet()
 
 void C업무용Dlg::convertBtn01Click()
 {
-	
+	LPTSTR a, b, c, c_p, c_p2;
+	CString d;
+	a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+	word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
+	b = (LPTSTR)malloc((word02.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+	word02.GetWindowTextW(b, word02.GetWindowTextLengthW() + 1);
+	c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+	source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+	d.Format(_T(""));
+
+	c_p2 = c_p = c;
+	while(*c_p != '\0')
+	{
+		while(*c_p != '\0' && *c_p != '\n')
+		{
+			++c_p;
+		}
+		if(*c_p != '\0')
+		{
+			if(*(c_p - 1) == '\r')
+				*(c_p - 1) = '\0';
+			else
+				*c_p = '\0';
+			++c_p;
+		}
+
+		d.Format(_T("%s%s%s%s\r\n"), d, a, c_p2, b);
+		c_p2 = c_p;
+	}
+	result01.SetWindowTextW(d);
+
+	free(a); free(b); free(c);
 }
