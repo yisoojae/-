@@ -65,6 +65,7 @@ BEGIN_MESSAGE_MAP(C업무용Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_CBN_SELCHANGE(jobKind_ID, &C업무용Dlg::jobKindSet)
 END_MESSAGE_MAP()
 
 
@@ -100,7 +101,11 @@ BOOL C업무용Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-
+	RECT a = {30, 10, 200, 30};
+	jobKind.Create(WS_VISIBLE | WS_CHILD | WS_VSCROLL | CBS_DROPDOWNLIST, a, this, jobKind_ID);
+	jobKind.AddString(_T("대량 권한코드 등록"));
+	jobKind.SetCurSel(0);
+	jobKindSet();
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -170,4 +175,16 @@ BOOL C업무용Dlg::PreTranslateMessage(MSG* pMsg)
 		break;
 	}
 	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+void C업무용Dlg::jobKindSet()
+{
+	switch(jobKind.GetCurSel())
+	{
+	case 0:
+		CRect rc;
+		GetWindowRect(&rc);
+		MoveWindow(rc.left, rc.top, 730, 750);
+		break;
+	}
 }
