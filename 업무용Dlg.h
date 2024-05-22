@@ -4,6 +4,7 @@
 
 #pragma once
 
+#define jobKind_ID 1001
 
 // C업무용Dlg 대화 상자
 class C업무용Dlg : public CDialogEx
@@ -22,6 +23,9 @@ public:
 // 구현입니다.
 protected:
 	HICON m_hIcon;
+
+	CComboBox jobKind;
+	void jobKindSet();
 
 	// 생성된 메시지 맵 함수
 	virtual BOOL OnInitDialog();
