@@ -86,3 +86,21 @@ HCURSOR C업무용Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+BOOL C업무용Dlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+	switch (pMsg->message)
+	{
+	case WM_KEYDOWN:
+		switch (pMsg->wParam)
+		{
+		case VK_ESCAPE:
+		case VK_RETURN:
+			return false;
+		}
+		break;
+	}
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
