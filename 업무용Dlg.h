@@ -5,6 +5,12 @@
 #pragma once
 
 #define jobKind_ID 1001
+#define word01_ID 1002
+#define word02_ID 1003
+#define source01_ID 1004
+#define label01_ID 1005
+#define result01_ID 1006
+#define convertBtn01_ID 1007
 
 // C업무용Dlg 대화 상자
 class C업무용Dlg : public CDialogEx
@@ -26,6 +32,12 @@ protected:
 
 	CComboBox jobKind;
 	void jobKindSet();
+
+	CEdit word01, word02, source01, result01;
+	CStatic label01;
+
+	CButton convertBtn01;
+	void convertBtn01Click();
 
 	// 생성된 메시지 맵 함수
 	virtual BOOL OnInitDialog();
