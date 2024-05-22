@@ -66,6 +66,7 @@ BEGIN_MESSAGE_MAP(C업무용Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_CBN_SELCHANGE(jobKind_ID, &C업무용Dlg::jobKindSet)
+	ON_BN_CLICKED(convertBtn01_ID, &C업무용Dlg::convertBtn01Click)
 END_MESSAGE_MAP()
 
 
@@ -185,6 +186,26 @@ void C업무용Dlg::jobKindSet()
 		CRect rc;
 		GetWindowRect(&rc);
 		MoveWindow(rc.left, rc.top, 730, 750);
+		RECT a = {20, 50, 300, 70};
+		word01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, a, this, word01_ID);
+		a.left = 310; a.right = 700;
+		label01.Create(_T("[값이 들어갈 자리]"), WS_VISIBLE, a, this, label01_ID);
+		a.left = 450; a.right = 700;
+		word02.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, a, this, word02_ID);
+		a.left = 20; a.right = 370; a.top = 80; a.bottom = 700;
+		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
+		source01.ShowScrollBar(SB_VERT);
+		a.left = 380; a.right = 700;
+		result01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, result01_ID);
+		result01.ShowScrollBar(SB_VERT);
+		a.left = 260; a.right = 500; a.top = 10; a.bottom = 40;
+		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+
 		break;
 	}
+}
+
+void C업무용Dlg::convertBtn01Click()
+{
+	
 }
