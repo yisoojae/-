@@ -54,6 +54,7 @@ C업무용Dlg::C업무용Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MY_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	lastIndex = -1;
 }
 
 void C업무용Dlg::DoDataExchange(CDataExchange* pDX)
@@ -105,8 +106,9 @@ BOOL C업무용Dlg::OnInitDialog()
 	RECT a = {30, 10, 200, 30};
 	jobKind.Create(WS_VISIBLE | WS_CHILD | WS_VSCROLL | CBS_DROPDOWNLIST, a, this, jobKind_ID);
 	jobKind.AddString(_T("대량 권한코드 등록"));
-	jobKind.SetCurSel(0);
-	jobKindSet();
+	jobKind.AddString(_T("열을 행으로 변환"));
+	//jobKind.SetCurSel(0);
+	//jobKindSet();
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -180,13 +182,33 @@ BOOL C업무용Dlg::PreTranslateMessage(MSG* pMsg)
 
 void C업무용Dlg::jobKindSet()
 {
+	if(lastIndex == jobKind.GetCurSel())
+		return;
+	switch(lastIndex)
+	{
+	case 0:
+		word01.DestroyWindow();
+		source01.DestroyWindow();
+		result01.DestroyWindow();
+		convertBtn01.DestroyWindow();
+		break;
+	case 1:
+		source01.DestroyWindow();
+		result01.DestroyWindow();
+		convertBtn01.DestroyWindow();
+		break;
+	}
+
+	CRect rc;
+	GetWindowRect(&rc);
+	RECT a = {20, 50, 300, 70};
+
 	switch(jobKind.GetCurSel())
 	{
 	case 0:
-		CRect rc;
-		GetWindowRect(&rc);
+		lastIndex = 0;
+
 		MoveWindow(rc.left, rc.top, 730, 750);
-		RECT a = {20, 50, 300, 70};
 		word01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, a, this, word01_ID);
 		//a.left = 310; a.right = 700;
 		//label01.Create(_T("[값이 들어갈 자리]"), WS_VISIBLE, a, this, label01_ID);
@@ -202,6 +224,21 @@ void C업무용Dlg::jobKindSet()
 		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
 
 		break;
+	case 1:
+		lastIndex = 1;
+
+		GetWindowRect(&rc);
+		MoveWindow(rc.left, rc.top, 650, 710);
+		a.left = 20; a.right = 370; a.top = 50; a.bottom = 600;
+		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
+		source01.ShowScrollBar(SB_VERT);
+		a.left = 20; a.right = 600; a.top = 610; a.bottom = 660;
+		result01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, result01_ID);
+		result01.ShowScrollBar(SB_HORZ);
+		a.left = 260; a.right = 500; a.top = 10; a.bottom = 40;
+		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+
+		break;
 	}
 }
 
@@ -209,53 +246,106 @@ void C업무용Dlg::convertBtn01Click()
 {
 	LPTSTR a/*, b*/, c, c_p, c_p2;
 	CString d;
-	a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
-	word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
-	//b = (LPTSTR)malloc((word02.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
-	//word02.GetWindowTextW(b, word02.GetWindowTextLengthW() + 1);
-	c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
-	source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
-	d.Format(_T("%s\r\n\r\n(\r\n"), a);
-
-	c_p2 = c_p = c;
-	if(*c_p != '\0')
+	switch(lastIndex)
 	{
-		while(*c_p != '\0' && *c_p != '\n')
-		{
-			++c_p;
-		}
+	case 0:
+		a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
+		//b = (LPTSTR)malloc((word02.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		//word02.GetWindowTextW(b, word02.GetWindowTextLengthW() + 1);
+		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+		d.Format(_T("%s\r\n\r\n(\r\n"), a);
+
+		c_p2 = c_p = c;
 		if(*c_p != '\0')
 		{
-			if(*(c_p - 1) == '\r')
-				*(c_p - 1) = '\0';
-			else
-				*c_p = '\0';
-			++c_p;
-		}
+			while(*c_p != '\0' && *c_p != '\n')
+			{
+				++c_p;
+			}
+			if(*c_p != '\0')
+			{
+				if(*(c_p - 1) == '\r')
+					*(c_p - 1) = '\0';
+				else
+					*c_p = '\0';
+				++c_p;
+			}
 
-		d.Format(_T("%s'%s'\r\n"), d, c_p2);
-		c_p2 = c_p;
-	}
-	while(*c_p != '\0')
-	{
-		while(*c_p != '\0' && *c_p != '\n')
-		{
-			++c_p;
+			d.Format(_T("%s'%s'\r\n"), d, c_p2);
+			c_p2 = c_p;
 		}
+		while(*c_p != '\0')
+		{
+			while(*c_p != '\0' && *c_p != '\n')
+			{
+				++c_p;
+			}
+			if(*c_p != '\0')
+			{
+				if(*(c_p - 1) == '\r')
+					*(c_p - 1) = '\0';
+				else
+					*c_p = '\0';
+				++c_p;
+			}
+
+			d.Format(_T("%s,'%s'\r\n"), d, c_p2);
+			c_p2 = c_p;
+		}
+		d.Format(_T("%s\r\n\r\n\r\n)"), d);
+		result01.SetWindowTextW(d);
+
+		free(a); /*free(b);*/ free(c);
+
+		break;
+	case 1:
+		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+		d.Format(_T(""));
+
+		c_p2 = c_p = c;
 		if(*c_p != '\0')
 		{
-			if(*(c_p - 1) == '\r')
-				*(c_p - 1) = '\0';
-			else
-				*c_p = '\0';
-			++c_p;
+			while(*c_p != '\0' && *c_p != '\n')
+			{
+				++c_p;
+			}
+			if(*c_p != '\0')
+			{
+				if(*(c_p - 1) == '\r')
+					*(c_p - 1) = '\0';
+				else
+					*c_p = '\0';
+				++c_p;
+			}
+
+			d.Format(_T("%s"), c_p2);
+			c_p2 = c_p;
 		}
+		while(*c_p != '\0')
+		{
+			while(*c_p != '\0' && *c_p != '\n')
+			{
+				++c_p;
+			}
+			if(*c_p != '\0')
+			{
+				if(*(c_p - 1) == '\r')
+					*(c_p - 1) = '\0';
+				else
+					*c_p = '\0';
+				++c_p;
+			}
 
-		d.Format(_T("%s,'%s'\r\n"), d, c_p2);
-		c_p2 = c_p;
+			d.Format(_T("%s, %s"), d, c_p2);
+			c_p2 = c_p;
+		}
+		result01.SetWindowTextW(d);
+
+		free(c);
+
+		break;
 	}
-	d.Format(_T("%s\r\n\r\n\r\n)"), d);
-	result01.SetWindowTextW(d);
-
-	free(a); /*free(b);*/ free(c);
 }

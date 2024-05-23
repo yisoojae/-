@@ -32,6 +32,8 @@ protected:
 protected:
 	HICON m_hIcon;
 
+	int lastIndex;
+
 	CComboBox jobKind;
 	void jobKindSet();
 
