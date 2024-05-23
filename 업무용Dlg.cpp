@@ -162,7 +162,6 @@ void C업무용Dlg::jobKindSet()
 	case 1:
 		lastIndex = 1;
 
-		GetWindowRect(&rc);
 		MoveWindow(rc.left, rc.top, 650, 710);
 		a.left = 20; a.right = 370; a.top = 50; a.bottom = 600;
 		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
@@ -284,5 +283,36 @@ void C업무용Dlg::convertBtn01Click()
 		free(c);
 
 		break;
+	}
+}
+
+void C업무용Dlg::copyBtn01Click()
+{
+	char *txt_multibyte, *P_data;
+	HGLOBAL h_data;
+	LPTSTR txt_org;
+
+	//LPCSTR은 멀티바이트, 클립보드에 복사하면 멀티바이트로 저장됨.
+	txt_org = (LPTSTR)malloc((result01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+	if(!txt_org) return;
+	result01.GetWindowTextW(txt_org, result01.GetWindowTextLengthW() + 1);
+
+	USES_CONVERSION;
+	txt_multibyte = W2A(txt_org);
+
+	free(txt_org);
+
+	h_data = ::GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, strlen(txt_multibyte) + 1);
+	P_data = (char*)::GlobalLock(h_data);
+	if(NULL != P_data)
+	{
+		memcpy((void*)P_data, txt_multibyte, strlen(txt_multibyte) + 1);
+		::GlobalUnlock(h_data);
+		if(::OpenClipboard(m_hWnd))
+		{
+			::EmptyClipboard();
+			::SetClipboardData(CF_TEXT, h_data);
+			::CloseClipboard();
+		}
 	}
 }
