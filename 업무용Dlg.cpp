@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(C업무용Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_CBN_SELCHANGE(jobKind_ID, &C업무용Dlg::jobKindSet)
 	ON_BN_CLICKED(convertBtn01_ID, &C업무용Dlg::convertBtn01Click)
+	ON_BN_CLICKED(copyBtn01_ID, &C업무용Dlg::copyBtn01Click)
 END_MESSAGE_MAP()
 
 
@@ -196,6 +197,7 @@ void C업무용Dlg::jobKindSet()
 		source01.DestroyWindow();
 		result01.DestroyWindow();
 		convertBtn01.DestroyWindow();
+		copyBtn01.DestroyWindow();
 		break;
 	}
 
@@ -237,6 +239,8 @@ void C업무용Dlg::jobKindSet()
 		result01.ShowScrollBar(SB_HORZ);
 		a.left = 260; a.right = 500; a.top = 10; a.bottom = 40;
 		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+		a.left = 390; a.right = 550; a.top = 260; a.bottom = 550;
+		copyBtn01.Create(_T("결과를\n클립보드에\n복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
 
 		break;
 	}

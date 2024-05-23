@@ -11,6 +11,7 @@
 #define label01_ID 1005
 #define result01_ID 1006
 #define convertBtn01_ID 1007
+#define copyBtn01_ID 1008
 
 // C업무용Dlg 대화 상자
 class C업무용Dlg : public CDialogEx
@@ -40,8 +41,9 @@ protected:
 	CEdit word01, word02, source01, result01;
 	CStatic label01;
 
-	CButton convertBtn01;
+	CButton convertBtn01, copyBtn01;
 	void convertBtn01Click();
+	void copyBtn01Click();
 
 	// 생성된 메시지 맵 함수
 	virtual BOOL OnInitDialog();
