@@ -12,6 +12,7 @@
 #define result01_ID 1006
 #define convertBtn01_ID 1007
 #define copyBtn01_ID 1008
+#define timer01_ID 9624956
 
 // C업무용Dlg 대화 상자
 class C업무용Dlg : public CDialogEx
@@ -19,6 +20,7 @@ class C업무용Dlg : public CDialogEx
 	// 생성입니다.
 public:
 	C업무용Dlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
+	~C업무용Dlg();
 
 	// 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
@@ -34,6 +36,9 @@ protected:
 	HICON m_hIcon;
 
 	int lastIndex;
+
+	COLORREF a_RGB;
+	HBRUSH a_BRUSH;
 
 	CComboBox jobKind;
 	void jobKindSet();
@@ -53,4 +58,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
