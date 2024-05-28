@@ -67,6 +67,7 @@ BOOL C업무용Dlg::OnInitDialog()
 	jobKind.AddString(_T("대량 권한코드 등록"));
 	jobKind.AddString(_T("열을 행으로 변환"));
 	jobKind.AddString(_T("화면 보호기 방지"));
+	jobKind.AddString(_T("코스콤 자동 답변"));
 	//jobKind.SetCurSel(0);
 	//jobKindSet();
 	
@@ -154,6 +155,12 @@ void C업무용Dlg::jobKindSet()
 		convertBtn01.DestroyWindow();
 		copyBtn01.DestroyWindow();
 		break;
+	case 3:
+		label01.DestroyWindow();
+		word01.DestroyWindow();
+		source01.DestroyWindow();
+		convertBtn01.DestroyWindow();
+		break;
 	}
 
 	CRect rc;
@@ -212,6 +219,23 @@ void C업무용Dlg::jobKindSet()
 		copyBtn01.Create(_T("취 소"), WS_VISIBLE | WS_CHILD, a, this, copyBtn01_ID);
 
 		break;
+	case 3:
+		lastIndex = 3;
+
+		GetWindowRect(&rc);
+		MoveWindow(rc.left, rc.top, 600, 600);
+		a.left = 10; a.right = 600; a.top = 40; a.bottom = 100;
+		label01.Create(_T("이 기능은 실험 기능입니다.\n정상 작동하지 않을 수 있으며\n편의 기능은 피드백 이후에 추가될 예정입니다."), WS_VISIBLE, a, this, label01_ID);
+		a.left = 100; a.right = 230; a.top = 110; a.bottom = 130;
+		word01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, a, this, word01_ID);
+		a.left = 20; a.right = 370; a.top = 150; a.bottom = 550;
+		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
+		source01.ShowScrollBar(SB_VERT);
+		source01.SetWindowTextW(L"네~~");
+		a.left = 240; a.right = 350; a.top = 100; a.bottom = 140;
+		convertBtn01.Create(_T("전 송"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+
+		break;
 	}
 }
 
@@ -219,6 +243,7 @@ void C업무용Dlg::convertBtn01Click()
 {
 	LPTSTR a/*, b*/, c, c_p, c_p2;
 	CString d;
+	CWnd* fwnd;
 	switch(lastIndex)
 	{
 	case 0:
@@ -331,6 +356,31 @@ void C업무용Dlg::convertBtn01Click()
 		InvalidateRect(NULL, true);
 
 		free(a);
+
+		break;
+	case 3:
+		a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
+		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+		fwnd = FindWindow(L"TFM_chat", a);
+		HWND h_fwnd;
+		if(fwnd)
+		{
+			h_fwnd = ::GetWindow(fwnd->GetSafeHwnd(), GW_CHILD);
+			h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
+			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+			h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
+			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+			::SendMessage(h_fwnd, WM_SETTEXT, NULL, (LPARAM)c);
+			::PostMessage(h_fwnd, WM_KEYDOWN, VK_RETURN, NULL);
+			::PostMessage(h_fwnd, WM_KEYUP, VK_RETURN, NULL);
+		}
+
+
+		free(a); free(c);
 
 		break;
 	}
