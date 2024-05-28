@@ -17,11 +17,21 @@
 
 
 
+void CALLBACK macroCallback(HWND hwnd, UINT a, UINT_PTR b, DWORD c){
+	mouse_event(MOUSEEVENTF_MOVE, 2, 0, 0, NULL);
+	mouse_event(MOUSEEVENTF_MOVE, -1, 0, 0, NULL);
+}
+
 C업무용Dlg::C업무용Dlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(C업무용Dlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	lastIndex = -1;
+}
+
+C업무용Dlg::~C업무용Dlg()
+{
+	DeleteObject(a_BRUSH);
 }
 
 void C업무용Dlg::DoDataExchange(CDataExchange* pDX)
@@ -35,6 +45,8 @@ BEGIN_MESSAGE_MAP(C업무용Dlg, CDialogEx)
 	ON_CBN_SELCHANGE(jobKind_ID, &C업무용Dlg::jobKindSet)
 	ON_BN_CLICKED(convertBtn01_ID, &C업무용Dlg::convertBtn01Click)
 	ON_BN_CLICKED(copyBtn01_ID, &C업무용Dlg::copyBtn01Click)
+	ON_WM_ERASEBKGND()
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -54,8 +66,12 @@ BOOL C업무용Dlg::OnInitDialog()
 	jobKind.Create(WS_VISIBLE | WS_CHILD | WS_VSCROLL | CBS_DROPDOWNLIST, a, this, jobKind_ID);
 	jobKind.AddString(_T("대량 권한코드 등록"));
 	jobKind.AddString(_T("열을 행으로 변환"));
+	jobKind.AddString(_T("화면 보호기 방지"));
 	//jobKind.SetCurSel(0);
 	//jobKindSet();
+	
+	a_RGB = RGB(238,238,238);
+	a_BRUSH = CreateSolidBrush(a_RGB);
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -132,6 +148,12 @@ void C업무용Dlg::jobKindSet()
 		convertBtn01.DestroyWindow();
 		copyBtn01.DestroyWindow();
 		break;
+	case 2:
+		label01.DestroyWindow();
+		word01.DestroyWindow();
+		convertBtn01.DestroyWindow();
+		copyBtn01.DestroyWindow();
+		break;
 	}
 
 	CRect rc;
@@ -173,6 +195,21 @@ void C업무용Dlg::jobKindSet()
 		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
 		a.left = 390; a.right = 550; a.top = 260; a.bottom = 550;
 		copyBtn01.Create(_T("결과를\n클립보드에\n복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
+
+		break;
+	case 2:
+		lastIndex = 2;
+
+		MoveWindow(rc.left, rc.top, 600, 300);
+		a.left = 10; a.right = 600; a.top = 40; a.bottom = 150;
+		label01.Create(_T("설정한 시간마다 마우스를 오른쪽으로 1픽셀 움직입니다.\n화면 보호기는 2분마다 작동하기 때문에\n1분 50초 이내에서 설정하기 바랍니다.\n\n기본값 : 50"), WS_VISIBLE, a, this, label01_ID);
+		a.left = 100; a.right = 230; a.top = 160; a.bottom = 180;
+		word01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_NUMBER, a, this, word01_ID);
+		word01.SetWindowTextW(L"50");
+		a.left = 50; a.right = 150; a.top = 200; a.bottom = 230;
+		convertBtn01.Create(_T("실 행"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+		a.left = 180; a.right = 280;
+		copyBtn01.Create(_T("취 소"), WS_VISIBLE | WS_CHILD, a, this, copyBtn01_ID);
 
 		break;
 	}
@@ -283,6 +320,19 @@ void C업무용Dlg::convertBtn01Click()
 		free(c);
 
 		break;
+	case 2:
+		KillTimer(timer01_ID);
+		a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
+		SetTimer(timer01_ID, _wtoi(a) * 1000, macroCallback);
+		a_RGB = RGB(238,190,195);
+		DeleteObject(a_BRUSH);
+		a_BRUSH = a_BRUSH = CreateSolidBrush(a_RGB);
+		InvalidateRect(NULL, true);
+
+		free(a);
+
+		break;
 	}
 }
 
@@ -292,27 +342,66 @@ void C업무용Dlg::copyBtn01Click()
 	HGLOBAL h_data;
 	LPTSTR txt_org;
 
-	//LPCSTR은 멀티바이트, 클립보드에 복사하면 멀티바이트로 저장됨.
-	txt_org = (LPTSTR)malloc((result01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
-	if(!txt_org) return;
-	result01.GetWindowTextW(txt_org, result01.GetWindowTextLengthW() + 1);
-
 	USES_CONVERSION;
-	txt_multibyte = W2A(txt_org);
-
-	free(txt_org);
-
-	h_data = ::GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, strlen(txt_multibyte) + 1);
-	P_data = (char*)::GlobalLock(h_data);
-	if(NULL != P_data)
+	
+	switch(lastIndex)
 	{
-		memcpy((void*)P_data, txt_multibyte, strlen(txt_multibyte) + 1);
-		::GlobalUnlock(h_data);
-		if(::OpenClipboard(m_hWnd))
+	case 1:
+		//LPCSTR은 멀티바이트, 클립보드에 복사하면 멀티바이트로 저장됨.
+		txt_org = (LPTSTR)malloc((result01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		if(!txt_org) return;
+		result01.GetWindowTextW(txt_org, result01.GetWindowTextLengthW() + 1);
+		txt_multibyte = W2A(txt_org);
+
+		free(txt_org);
+
+		h_data = ::GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, strlen(txt_multibyte) + 1);
+		P_data = (char*)::GlobalLock(h_data);
+		if(NULL != P_data)
 		{
-			::EmptyClipboard();
-			::SetClipboardData(CF_TEXT, h_data);
-			::CloseClipboard();
+			memcpy((void*)P_data, txt_multibyte, strlen(txt_multibyte) + 1);
+			::GlobalUnlock(h_data);
+			if(::OpenClipboard(m_hWnd))
+			{
+				::EmptyClipboard();
+				::SetClipboardData(CF_TEXT, h_data);
+				::CloseClipboard();
+			}
 		}
+		break;
+	case 2:
+		KillTimer(timer01_ID);
+		a_RGB = RGB(238,238,238);
+		DeleteObject(a_BRUSH);
+		a_BRUSH = a_BRUSH = CreateSolidBrush(a_RGB);
+		InvalidateRect(NULL, true);
+		break;
 	}
+}
+
+BOOL C업무용Dlg::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	CRect rect;
+	GetClientRect(rect);
+	pDC->FillSolidRect(rect,a_RGB);
+	return TRUE;
+	return CDialogEx::OnEraseBkgnd(pDC);
+}
+
+
+HBRUSH C업무용Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  여기서 DC의 특성을 변경합니다.
+	switch(pWnd->GetDlgCtrlID())
+	{
+	case label01_ID:
+		pDC->SetBkColor(a_RGB);
+		return a_BRUSH;
+		break;
+	}
+	// TODO:  기본값이 적당하지 않으면 다른 브러시를 반환합니다.
+	return hbr;
 }
