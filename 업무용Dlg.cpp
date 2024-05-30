@@ -171,6 +171,7 @@ void C업무용Dlg::jobKindSet()
 		source01.DestroyWindow();
 		result01.DestroyWindow();
 		convertBtn01.DestroyWindow();
+		copyBtn01.DestroyWindow();
 		break;
 	case 1:
 		source01.DestroyWindow();
@@ -224,6 +225,8 @@ void C업무용Dlg::jobKindSet()
 		result01.ShowScrollBar(SB_VERT);
 		a.left = 260; a.right = 500; a.top = 10; a.bottom = 40;
 		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+		a.left = 360; a.right = 700; a.top = 45; a.bottom = 75;
+		copyBtn01.Create(_T("결과를 클립보드에 복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
 
 		break;
 	case 1:
@@ -445,6 +448,7 @@ void C업무용Dlg::copyBtn01Click()
 	
 	switch(lastIndex)
 	{
+	case 0:
 	case 1:
 		//LPCSTR은 멀티바이트, 클립보드에 복사하면 멀티바이트로 저장됨.
 		txt_org = (LPTSTR)malloc((result01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
