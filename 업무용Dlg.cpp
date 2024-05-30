@@ -61,11 +61,23 @@ C업무용Dlg::C업무용Dlg(CWnd* pParent /*=nullptr*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	lastIndex = -1;
+	macroNum = 0;
+	macroBtn = (CButton**)malloc(macroBtnMax * sizeof(CButton**));
+	if(!macroBtn) OnClose();
+	for(int i = 0;i < macroBtnMax;i++)
+	{
+		macroBtn[i] = new CButton();
+	}
 }
 
 C업무용Dlg::~C업무용Dlg()
 {
 	DeleteObject(a_BRUSH);
+	for(int i = 0;i < macroBtnMax;i++)
+	{
+		delete(macroBtn[i]);
+	}
+	free(macroBtn);
 }
 
 void C업무용Dlg::DoDataExchange(CDataExchange* pDX)
@@ -80,6 +92,7 @@ BEGIN_MESSAGE_MAP(C업무용Dlg, CDialogEx)
 	ON_CBN_SELCHANGE(jobKind_ID, &C업무용Dlg::jobKindSet)
 	ON_BN_CLICKED(convertBtn01_ID, &C업무용Dlg::convertBtn01Click)
 	ON_BN_CLICKED(copyBtn01_ID, &C업무용Dlg::copyBtn01Click)
+	ON_CONTROL_RANGE(BN_CLICKED, macroBtn_ID, macroBtn_ID + macroBtnMax - 1, &C업무용Dlg::macroBtnClick)
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
@@ -228,6 +241,11 @@ void C업무용Dlg::jobKindSet()
 		word01.DestroyWindow();
 		source01.DestroyWindow();
 		convertBtn01.DestroyWindow();
+		copyBtn01.DestroyWindow();
+		for(int i = 0;i < macroNum;i++)
+		{
+			macroBtn[i]->ShowWindow(SW_HIDE);
+		}
 		break;
 	}
 
@@ -299,9 +317,15 @@ void C업무용Dlg::jobKindSet()
 		a.left = 20; a.right = 370; a.top = 150; a.bottom = 550;
 		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
 		source01.ShowScrollBar(SB_VERT);
-		source01.SetWindowTextW(L"네~~");
+		//source01.SetWindowTextW(L"네~~");
 		a.left = 240; a.right = 350; a.top = 100; a.bottom = 140;
 		convertBtn01.Create(_T("전 송"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+		a.left = 380; a.right = 520;
+		copyBtn01.Create(_T("매크로 등록"), WS_VISIBLE | WS_CHILD, a, this, copyBtn01_ID);
+		for(int i = 0;i < macroNum;i++)
+		{
+			macroBtn[i]->ShowWindow(SW_SHOW);
+		}
 
 		break;
 	}
@@ -458,7 +482,8 @@ void C업무용Dlg::copyBtn01Click()
 {
 	char *txt_multibyte, *P_data;
 	HGLOBAL h_data;
-	LPTSTR txt_org;
+	LPTSTR txt_org, c;
+	RECT rct = {380, 160, 480, 200};
 
 	USES_CONVERSION;
 	
@@ -494,6 +519,18 @@ void C업무용Dlg::copyBtn01Click()
 		a_BRUSH = a_BRUSH = CreateSolidBrush(a_RGB);
 		InvalidateRect(NULL, true);
 		break;
+	case 3:
+		if(macroNum < macroBtnMax)
+		{
+			c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+			source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+			rct.top = 160 + (50 * macroNum); rct.bottom = 200 + (50 * macroNum);
+			macroBtn[macroNum]->Create(c, WS_VISIBLE | WS_CHILD | BS_LEFT, rct, this, macroBtn_ID + macroNum);
+			++macroNum;
+
+			free(c);
+		}
+		break;
 	}
 }
 
@@ -522,4 +559,32 @@ HBRUSH C업무용Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 	// TODO:  기본값이 적당하지 않으면 다른 브러시를 반환합니다.
 	return hbr;
+}
+
+void C업무용Dlg::macroBtnClick(UINT nID)
+{
+	int idx = nID - macroBtn_ID;
+	LPTSTR a, c;
+	a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+	word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
+	c = (LPTSTR)malloc((macroBtn[idx]->GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+	macroBtn[idx]->GetWindowTextW(c, macroBtn[idx]->GetWindowTextLengthW() + 1);
+	CWnd* fwnd = FindWindow(L"TFM_chat", a);
+	HWND h_fwnd;
+	if(fwnd)
+	{
+		h_fwnd = ::GetWindow(fwnd->GetSafeHwnd(), GW_CHILD);
+		h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
+		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+		h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
+		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+		::SendMessage(h_fwnd, WM_SETTEXT, NULL, (LPARAM)c);
+		::PostMessage(h_fwnd, WM_KEYDOWN, VK_RETURN, NULL);
+		::PostMessage(h_fwnd, WM_KEYUP, VK_RETURN, NULL);
+	}
+
+
+	free(a); free(c);
 }
