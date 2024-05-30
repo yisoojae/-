@@ -30,9 +30,19 @@ C업무용Dlg::C업무용Dlg(CWnd* pParent /*=NULL*/)
 	macroNum = 0;
 	macroBtn = (CButton**)malloc(macroBtnMax * sizeof(CButton**));
 	if(!macroBtn) OnClose();
+	macroDelBtn = (CButton**)malloc(macroBtnMax * sizeof(CButton**));
+	if(!macroDelBtn)
+	{
+		free(macroBtn);
+		OnClose();
+	}
 	for(int i = 0;i < macroBtnMax;i++)
 	{
 		macroBtn[i] = new CButton();
+	}
+	for(int i = 0;i < macroBtnMax;i++)
+	{
+		macroDelBtn[i] = new CButton();
 	}
 }
 
@@ -44,6 +54,11 @@ C업무용Dlg::~C업무용Dlg()
 		delete(macroBtn[i]);
 	}
 	free(macroBtn);
+	for(int i = 0;i < macroBtnMax;i++)
+	{
+		delete(macroDelBtn[i]);
+	}
+	free(macroDelBtn);
 }
 
 void C업무용Dlg::DoDataExchange(CDataExchange* pDX)
@@ -58,6 +73,7 @@ BEGIN_MESSAGE_MAP(C업무용Dlg, CDialogEx)
 	ON_BN_CLICKED(convertBtn01_ID, &C업무용Dlg::convertBtn01Click)
 	ON_BN_CLICKED(copyBtn01_ID, &C업무용Dlg::copyBtn01Click)
 	ON_CONTROL_RANGE(BN_CLICKED, macroBtn_ID, macroBtn_ID + macroBtnMax - 1, &C업무용Dlg::macroBtnClick)
+	ON_CONTROL_RANGE(BN_CLICKED, macroDelBtn_ID, macroDelBtn_ID + macroBtnMax - 1, &C업무용Dlg::macroDelBtnClick)
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
@@ -178,6 +194,10 @@ void C업무용Dlg::jobKindSet()
 		{
 			macroBtn[i]->ShowWindow(SW_HIDE);
 		}
+		for(int i = 0;i < macroNum;i++)
+		{
+			macroDelBtn[i]->ShowWindow(SW_HIDE);
+		}
 		break;
 	}
 
@@ -257,6 +277,10 @@ void C업무용Dlg::jobKindSet()
 		for(int i = 0;i < macroNum;i++)
 		{
 			macroBtn[i]->ShowWindow(SW_SHOW);
+		}
+		for(int i = 0;i < macroNum;i++)
+		{
+			macroDelBtn[i]->ShowWindow(SW_SHOW);
 		}
 
 		break;
@@ -458,9 +482,12 @@ void C업무용Dlg::copyBtn01Click()
 			source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
 			rct.top = 160 + (50 * macroNum); rct.bottom = 200 + (50 * macroNum);
 			macroBtn[macroNum]->Create(c, WS_VISIBLE | WS_CHILD | BS_LEFT, rct, this, macroBtn_ID + macroNum);
-			++macroNum;
 
 			free(c);
+
+			rct.left = 490; rct.right = 540;
+			macroDelBtn[macroNum]->Create(L"삭제", WS_VISIBLE | WS_CHILD, rct, this, macroDelBtn_ID + macroNum);
+			++macroNum;
 		}
 		break;
 	}
@@ -519,4 +546,20 @@ void C업무용Dlg::macroBtnClick(UINT nID)
 
 
 	free(a); free(c);
+}
+
+void C업무용Dlg::macroDelBtnClick(UINT nID)
+{
+	int idx = nID - macroDelBtn_ID;
+	macroDelBtn[macroNum - 1]->DestroyWindow();
+	macroBtn[idx]->DestroyWindow();
+	CButton* tmp = macroBtn[idx];
+	for(int i = idx;i < macroNum - 1;i++)
+	{
+		macroBtn[i] = macroBtn[i + 1];
+		macroBtn[i]->SetDlgCtrlID(macroBtn_ID + i);
+		macroBtn[i]->MoveWindow(380, 160 + (50 * i), 100, 40);
+	}
+	macroBtn[macroNum - 1] = tmp;
+	--macroNum;
 }

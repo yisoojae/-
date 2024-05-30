@@ -15,6 +15,7 @@
 #define convertBtn01_ID 1007
 #define copyBtn01_ID 1008
 #define macroBtn_ID 2001
+#define macroDelBtn_ID 3001
 #define timer01_ID 9624956
 
 // C업무용Dlg 대화 상자
@@ -51,7 +52,9 @@ protected:
 	void convertBtn01Click();
 	void copyBtn01Click();
 	CButton** macroBtn;
+	CButton** macroDelBtn;
 	void macroBtnClick(UINT nID);
+	void macroDelBtnClick(UINT nID);
 
 	// 생성된 메시지 맵 함수
 	virtual BOOL OnInitDialog();
