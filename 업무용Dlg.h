@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define macroBtnMax 5
+
 #define jobKind_ID 1001
 #define word01_ID 1002
 #define word02_ID 1003
@@ -12,6 +14,7 @@
 #define result01_ID 1006
 #define convertBtn01_ID 1007
 #define copyBtn01_ID 1008
+#define macroBtn_ID 2001
 #define timer01_ID 9624956
 
 // C업무용Dlg 대화 상자
@@ -33,7 +36,7 @@ public:
 protected:
 	HICON m_hIcon;
 
-	int lastIndex;
+	int lastIndex, macroNum;
 
 	COLORREF a_RGB;
 	HBRUSH a_BRUSH;
@@ -47,6 +50,8 @@ protected:
 	CButton convertBtn01, copyBtn01;
 	void convertBtn01Click();
 	void copyBtn01Click();
+	CButton** macroBtn;
+	void macroBtnClick(UINT nID);
 
 	// 생성된 메시지 맵 함수
 	virtual BOOL OnInitDialog();
