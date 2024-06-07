@@ -292,7 +292,7 @@ void C업무용Dlg::jobKindSet()
 
 void C업무용Dlg::convertBtn01Click()
 {
-	LPTSTR a/*, b*/, c, c_p, c_p2;
+	LPTSTR a/*, b*/, c, c_p, c_p2, c_p3;
 	CString d;
 	CWnd* fwnd;
 	switch(lastIndex)
@@ -306,42 +306,42 @@ void C업무용Dlg::convertBtn01Click()
 		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
 		d.Format(_T("%s\r\n\r\n(\r\n"), a);
 
-		c_p2 = c_p = c;
+		c_p = c;
 		if(*c_p != '\0')
 		{
-			while(*c_p != '\0' && *c_p != '\n')
-			{
-				++c_p;
-			}
+			while(*c_p == ' ' || *c_p == '\n' || *c_p == '\r') ++c_p;
 			if(*c_p != '\0')
 			{
-				if(*(c_p - 1) == '\r')
-					*(c_p - 1) = '\0';
-				else
-					*c_p = '\0';
-				++c_p;
-			}
+				c_p2 = c_p;
+				while(*c_p != '\0' && *c_p != '\n')
+				{
+					++c_p;
+				}
+				c_p3 = c_p;
+				if(*c_p == '\0') --c_p3;
+				else ++c_p;
+				while(*c_p3 == ' ' || *c_p3 == '\n' || *c_p3 == '\r') --c_p3;
+				*(c_p3 + 1) = '\0';
 
-			d.Format(_T("%s'%s'\r\n"), d, c_p2);
-			c_p2 = c_p;
+				d.Format(_T("%s'%s'\r\n"), d, c_p2);
+			}
 		}
 		while(*c_p != '\0')
 		{
+			while(*c_p == ' ' || *c_p == '\n' || *c_p == '\r') ++c_p;
+			if(*c_p == '\0') break;
+			c_p2 = c_p;
 			while(*c_p != '\0' && *c_p != '\n')
 			{
 				++c_p;
 			}
-			if(*c_p != '\0')
-			{
-				if(*(c_p - 1) == '\r')
-					*(c_p - 1) = '\0';
-				else
-					*c_p = '\0';
-				++c_p;
-			}
+			c_p3 = c_p;
+			if(*c_p == '\0') --c_p3;
+			else ++c_p;
+			while(*c_p3 == ' ' || *c_p3 == '\n' || *c_p3 == '\r') --c_p3;
+			*(c_p3 + 1) = '\0';
 
 			d.Format(_T("%s,'%s'\r\n"), d, c_p2);
-			c_p2 = c_p;
 		}
 		d.Format(_T("%s\r\n\r\n\r\n)"), d);
 		result01.SetWindowTextW(d);
@@ -354,42 +354,42 @@ void C업무용Dlg::convertBtn01Click()
 		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
 		d.Format(_T(""));
 
-		c_p2 = c_p = c;
+		c_p = c;
 		if(*c_p != '\0')
 		{
-			while(*c_p != '\0' && *c_p != '\n')
-			{
-				++c_p;
-			}
+			while(*c_p == ' ' || *c_p == '\n' || *c_p == '\r') ++c_p;
 			if(*c_p != '\0')
 			{
-				if(*(c_p - 1) == '\r')
-					*(c_p - 1) = '\0';
-				else
-					*c_p = '\0';
-				++c_p;
-			}
+				c_p2 = c_p;
+				while(*c_p != '\0' && *c_p != '\n')
+				{
+					++c_p;
+				}
+				c_p3 = c_p;
+				if(*c_p == '\0') --c_p3;
+				else ++c_p;
+				while(*c_p3 == ' ' || *c_p3 == '\n' || *c_p3 == '\r') --c_p3;
+				*(c_p3 + 1) = '\0';
 
-			d.Format(_T("%s"), c_p2);
-			c_p2 = c_p;
+				d.Format(_T("%s"), c_p2);
+			}
 		}
 		while(*c_p != '\0')
 		{
+			while(*c_p == ' ' || *c_p == '\n' || *c_p == '\r') ++c_p;
+			if(*c_p == '\0') break;
+			c_p2 = c_p;
 			while(*c_p != '\0' && *c_p != '\n')
 			{
 				++c_p;
 			}
-			if(*c_p != '\0')
-			{
-				if(*(c_p - 1) == '\r')
-					*(c_p - 1) = '\0';
-				else
-					*c_p = '\0';
-				++c_p;
-			}
+			c_p3 = c_p;
+			if(*c_p == '\0') --c_p3;
+			else ++c_p;
+			while(*c_p3 == ' ' || *c_p3 == '\n' || *c_p3 == '\r') --c_p3;
+			*(c_p3 + 1) = '\0';
 
 			d.Format(_T("%s, %s"), d, c_p2);
-			c_p2 = c_p;
 		}
 		result01.SetWindowTextW(d);
 
