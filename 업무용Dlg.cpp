@@ -362,7 +362,7 @@ void C업무용Dlg::convertBtn01Click()
 {
 	LPTSTR a/*, b*/, c, c_p, c_p2, c_p3;
 	CString d;
-	CWnd* fwnd;
+	HWND fwnd;
 	switch(lastIndex)
 	{
 	case 0:
@@ -482,17 +482,18 @@ void C업무용Dlg::convertBtn01Click()
 		word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
 		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
-		fwnd = FindWindow(L"TFM_chat", a);
+		fwnd = ::FindWindow(L"TFM_chat", a);
 		HWND h_fwnd;
 		if(fwnd)
 		{
-			h_fwnd = ::GetWindow(fwnd->GetSafeHwnd(), GW_CHILD);
+			h_fwnd = ::GetWindow(fwnd, GW_CHILD);
 			h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
 			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
 			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
 			h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
 			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
-			h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+			h_fwnd = ::FindWindowEx(h_fwnd, NULL, L"TOnChatRichEdit", NULL);
+
 			::SendMessage(h_fwnd, WM_SETTEXT, NULL, (LPARAM)c);
 			::PostMessage(h_fwnd, WM_KEYDOWN, VK_RETURN, NULL);
 			::PostMessage(h_fwnd, WM_KEYUP, VK_RETURN, NULL);
@@ -600,17 +601,17 @@ void C업무용Dlg::macroBtnClick(UINT nID)
 	word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
 	c = (LPTSTR)malloc((macroBtn[idx]->GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 	macroBtn[idx]->GetWindowTextW(c, macroBtn[idx]->GetWindowTextLengthW() + 1);
-	CWnd* fwnd = FindWindow(L"TFM_chat", a);
+	HWND fwnd = ::FindWindow(L"TFM_chat", a);
 	HWND h_fwnd;
 	if(fwnd)
 	{
-		h_fwnd = ::GetWindow(fwnd->GetSafeHwnd(), GW_CHILD);
+		h_fwnd = ::GetWindow(fwnd, GW_CHILD);
 		h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
 		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
 		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
 		h_fwnd = ::GetNextWindow(h_fwnd, GW_HWNDNEXT);
 		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
-		h_fwnd = ::GetWindow(h_fwnd, GW_CHILD);
+		h_fwnd = ::FindWindowEx(h_fwnd, NULL, L"TOnChatRichEdit", NULL);
 		::SendMessage(h_fwnd, WM_SETTEXT, NULL, (LPARAM)c);
 		::PostMessage(h_fwnd, WM_KEYDOWN, VK_RETURN, NULL);
 		::PostMessage(h_fwnd, WM_KEYUP, VK_RETURN, NULL);
