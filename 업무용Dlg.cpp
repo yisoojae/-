@@ -97,6 +97,7 @@ BOOL C업무용Dlg::OnInitDialog()
 	jobKind.AddString(_T("열을 행으로 변환"));
 	jobKind.AddString(_T("화면 보호기 방지"));
 	jobKind.AddString(_T("코스콤 자동 답변"));
+	jobKind.AddString(_T("숫자 추출기"));
 	//jobKind.SetCurSel(0);
 	//jobKindSet();
 	
@@ -200,6 +201,12 @@ void C업무용Dlg::jobKindSet()
 			macroDelBtn[i]->ShowWindow(SW_HIDE);
 		}
 		break;
+	case 4:
+		source01.DestroyWindow();
+		result01.DestroyWindow();
+		convertBtn01.DestroyWindow();
+		copyBtn01.DestroyWindow();
+		break;
 	}
 
 	CRect rc;
@@ -285,6 +292,22 @@ void C업무용Dlg::jobKindSet()
 		{
 			macroDelBtn[i]->ShowWindow(SW_SHOW);
 		}
+
+		break;
+	case 4:
+		lastIndex = 4;
+
+		MoveWindow(rc.left, rc.top, 730, 750);
+		a.left = 20; a.right = 370; a.top = 80; a.bottom = 700;
+		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
+		source01.ShowScrollBar(SB_VERT);
+		a.left = 380; a.right = 700;
+		result01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, result01_ID);
+		result01.ShowScrollBar(SB_VERT);
+		a.left = 260; a.right = 500; a.top = 10; a.bottom = 40;
+		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+		a.left = 360; a.right = 700; a.top = 45; a.bottom = 75;
+		copyBtn01.Create(_T("결과를 클립보드에 복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
 
 		break;
 	}
@@ -435,6 +458,53 @@ void C업무용Dlg::convertBtn01Click()
 		free(a); free(c);
 
 		break;
+	case 4:
+		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+		d.Format(_T(""));
+
+		c_p = c;
+		if(*c_p != '\0')
+		{
+			while(*c_p != '\0' && (*c_p < '0' || '9' < *c_p)) ++c_p;
+			if(*c_p != '\0')
+			{
+				c_p2 = c_p;
+				while('0' <= *c_p && *c_p <= '9')
+				{
+					++c_p;
+				}
+				if(*c_p != '\0')
+				{
+					*c_p = '\0';
+					++c_p;
+				}
+
+				d.Format(_T("%s"), c_p2);
+			}
+		}
+		while(*c_p != '\0')
+		{
+			while(*c_p != '\0' && (*c_p < '0' || '9' < *c_p)) ++c_p;
+			if(*c_p == '\0') break;
+			c_p2 = c_p;
+			while('0' <= *c_p && *c_p <= '9')
+			{
+				++c_p;
+			}
+			if(*c_p != '\0')
+			{
+				*c_p = '\0';
+				++c_p;
+			}
+
+			d.Format(_T("%s\r\n%s"), d, c_p2);
+		}
+		result01.SetWindowTextW(d);
+
+		free(c);
+
+		break;
 	}
 }
 
@@ -451,6 +521,7 @@ void C업무용Dlg::copyBtn01Click()
 	{
 	case 0:
 	case 1:
+	case 4:
 		//LPCSTR은 멀티바이트, 클립보드에 복사하면 멀티바이트로 저장됨.
 		txt_org = (LPTSTR)malloc((result01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 		if(!txt_org) return;
