@@ -383,7 +383,7 @@ void C업무용Dlg::jobKindSet()
 
 void C업무용Dlg::convertBtn01Click()
 {
-	LPTSTR a/*, b*/, c, c_p, c_p2, c_p3;
+	LPTSTR a/*, b*/, c, c_p, c_p2, c_p3, x, a_, x_;
 	CString d;
 	HWND fwnd;
 	switch(lastIndex)
@@ -505,7 +505,28 @@ void C업무용Dlg::convertBtn01Click()
 		word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
 		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
-		fwnd = ::FindWindow(L"TFM_chat", a);
+		fwnd = ::FindWindow(L"TFM_chat", NULL);
+		while(fwnd)
+		{
+			x = (LPTSTR)malloc((::GetWindowTextLengthW(fwnd) + 1) * sizeof(LPTSTR));
+			::GetWindowText(fwnd, x, ::GetWindowTextLength(fwnd) + 1);
+			a_ = a;
+			x_ = x;
+			while(*a_ && *x_)
+			{
+				if(*a_ != *x_) break;
+				++a_;
+				++x_;
+			}
+			if(*a_ == L'\0' || *x_ == L'\0')
+			{
+				free(x);
+				break;
+			}
+
+			free(x);
+			fwnd = ::FindWindowEx(NULL, fwnd, L"TFM_chat", NULL);
+		}
 		HWND h_fwnd;
 		if(fwnd)
 		{
@@ -667,12 +688,33 @@ HBRUSH C업무용Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void C업무용Dlg::macroBtnClick(UINT nID)
 {
 	int idx = nID - macroBtn_ID;
-	LPTSTR a, c;
+	LPTSTR a, c, x, a_, x_;
 	a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 	word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
 	c = (LPTSTR)malloc((macroBtn[idx]->GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 	macroBtn[idx]->GetWindowTextW(c, macroBtn[idx]->GetWindowTextLengthW() + 1);
-	HWND fwnd = ::FindWindow(L"TFM_chat", a);
+	HWND fwnd = ::FindWindow(L"TFM_chat", NULL);
+	while(fwnd)
+	{
+		x = (LPTSTR)malloc((::GetWindowTextLengthW(fwnd) + 1) * sizeof(LPTSTR));
+		::GetWindowText(fwnd, x, ::GetWindowTextLength(fwnd) + 1);
+		a_ = a;
+		x_ = x;
+		while(*a_ && *x_)
+		{
+			if(*a_ != *x_) break;
+			++a_;
+			++x_;
+		}
+		if(*a_ == L'\0' || *x_ == L'\0')
+		{
+			free(x);
+			break;
+		}
+
+		free(x);
+		fwnd = ::FindWindowEx(NULL, fwnd, L"TFM_chat", NULL);
+	}
 	HWND h_fwnd;
 	if(fwnd)
 	{
