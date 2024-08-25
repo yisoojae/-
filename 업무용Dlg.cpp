@@ -98,6 +98,7 @@ BOOL C업무용Dlg::OnInitDialog()
 	jobKind.AddString(_T("화면 보호기 방지"));
 	jobKind.AddString(_T("코스콤 자동 답변"));
 	jobKind.AddString(_T("숫자 추출기"));
+	jobKind.AddString(_T("차집합 구하기"));
 	//jobKind.SetCurSel(0);
 	//jobKindSet();
 	
@@ -207,6 +208,13 @@ void C업무용Dlg::jobKindSet()
 		convertBtn01.DestroyWindow();
 		copyBtn01.DestroyWindow();
 		break;
+	case 5:
+		word01.DestroyWindow();
+		source01.DestroyWindow();
+		result01.DestroyWindow();
+		convertBtn01.DestroyWindow();
+		copyBtn01.DestroyWindow();
+		break;
 	}
 
 	CRect rc;
@@ -310,12 +318,32 @@ void C업무용Dlg::jobKindSet()
 		copyBtn01.Create(_T("결과를 클립보드에 복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
 
 		break;
+	case 5:
+		lastIndex = 5;
+
+		MoveWindow(rc.left, rc.top, 1060, 750);
+		a.left = 20; a.right = 370; a.top = 80; a.bottom = 700;
+		word01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, word01_ID);
+		word01.ShowScrollBar(SB_VERT);
+		a.left = 380; a.right = 700;
+		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
+		source01.ShowScrollBar(SB_VERT);
+		a.left = 710; a.right = 1030;
+		result01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, result01_ID);
+		result01.ShowScrollBar(SB_VERT);
+		a.left = 260; a.right = 500; a.top = 10; a.bottom = 40;
+		convertBtn01.Create(_T("변  환"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+		a.left = 360; a.right = 700; a.top = 45; a.bottom = 75;
+		copyBtn01.Create(_T("결과를 클립보드에 복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
+
+		break;
 	}
 }
 
 void C업무용Dlg::convertBtn01Click()
 {
-	LPTSTR a/*, b*/, c, c_p, c_p2, c_p3, x, a_, x_;
+	LPTSTR a/*, b*/, c, c_p, c_p2, c_p3, x, a_, x_, a_p, a_p2;
+	int count1, count2;
 	CString d;
 	HWND fwnd;
 	switch(lastIndex)
@@ -526,6 +554,114 @@ void C업무용Dlg::convertBtn01Click()
 		free(c);
 
 		break;
+	case 5:
+		a = (LPTSTR)malloc((word01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		word01.GetWindowTextW(a, word01.GetWindowTextLengthW() + 1);
+		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+		d.Format(_T(""));
+
+		c_p = a;
+convertBtn01_case5_1:
+		if(*c_p != '\0')
+		{
+			while(*c_p == ' ' || *c_p == '\n' || *c_p == '\r') ++c_p;
+			if(*c_p != '\0')
+			{
+				c_p2 = c_p;
+				while(*c_p != '\0' && *c_p != '\n')
+				{
+					++c_p;
+				}
+				c_p3 = c_p;
+				if(*c_p == '\0') --c_p3;
+				else ++c_p;
+				while(*c_p3 == ' ' || *c_p3 == '\n' || *c_p3 == '\r') --c_p3;
+				*(c_p3 + 1) = '\0';
+				count1 = wcslen(c_p2);
+			
+				a_p = c;
+				while(*a_p != '\0')
+				{
+					while(*a_p == ' ' || *a_p == '\n' || *a_p == '\r') ++a_p;
+					if(*a_p == '\0') break;
+					a_p2 = a_p;
+					while(*a_p != '\0' && *a_p != '\n')
+					{
+						++a_p;
+					}
+					if(*a_p != '\0') ++a_p;
+
+					count2 = 0;
+					while(*a_p2 == *(c_p2 + count2))
+					{
+						++count2;
+						if(count1 <= count2)
+						{
+							++a_p2;
+							while(*a_p2 == ' ') ++a_p2;
+							if(*a_p2 == '\0' || *a_p2 == '\n' || *a_p2 == '\r') goto convertBtn01_case5_1;
+							else break;
+						}
+						++a_p2;
+					}
+				}
+			}
+
+			d.Format(_T("%s"), c_p2);
+		}
+		while(*c_p != '\0')
+		{
+			while(*c_p == ' ' || *c_p == '\n' || *c_p == '\r') ++c_p;
+			if(*c_p == '\0') break;
+			c_p2 = c_p;
+			while(*c_p != '\0' && *c_p != '\n')
+			{
+				++c_p;
+			}
+			c_p3 = c_p;
+			if(*c_p == '\0') --c_p3;
+			else ++c_p;
+			while(*c_p3 == ' ' || *c_p3 == '\n' || *c_p3 == '\r') --c_p3;
+			*(c_p3 + 1) = '\0';
+			count1 = wcslen(c_p2);
+			
+			a_p = c;
+			while(*a_p != '\0')
+			{
+				while(*a_p == ' ' || *a_p == '\n' || *a_p == '\r') ++a_p;
+				if(*a_p == '\0') break;
+				a_p2 = a_p;
+				while(*a_p != '\0' && *a_p != '\n')
+				{
+					++a_p;
+				}
+				if(*a_p != '\0') ++a_p;
+
+				count2 = 0;
+				while(*a_p2 == *(c_p2 + count2))
+				{
+					++count2;
+					if(count1 <= count2)
+					{
+						++a_p2;
+						while(*a_p2 == ' ') ++a_p2;
+						if(*a_p2 == '\0' || *a_p2 == '\n' || *a_p2 == '\r') goto convertBtn01_case5_2;
+						else break;
+					}
+					++a_p2;
+				}
+			}
+
+			d.Format(_T("%s\r\n%s"), d, c_p2);
+convertBtn01_case5_2:
+			continue;
+		}
+		result01.SetWindowTextW(d);
+
+		free(a); free(c);
+
+		break;
 	}
 }
 
@@ -543,6 +679,7 @@ void C업무용Dlg::copyBtn01Click()
 	case 0:
 	case 1:
 	case 4:
+	case 5:
 		//LPCSTR은 멀티바이트, 클립보드에 복사하면 멀티바이트로 저장됨.
 		txt_org = (LPTSTR)malloc((result01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 		if(!txt_org) return;
