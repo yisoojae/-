@@ -154,6 +154,7 @@ BOOL C업무용Dlg::OnInitDialog()
 	jobKind.AddString(_T("코스콤 자동 답변"));
 	jobKind.AddString(_T("숫자 추출기"));
 	jobKind.AddString(_T("차집합 구하기"));
+	jobKind.AddString(_T("중복 개수 구하기"));
 	//jobKind.SetCurSel(0);
 	//jobKindSet();
 	
@@ -283,6 +284,12 @@ void C업무용Dlg::jobKindSet()
 		convertBtn01.DestroyWindow();
 		copyBtn01.DestroyWindow();
 		break;
+	case 6:
+		source01.DestroyWindow();
+		result01.DestroyWindow();
+		convertBtn01.DestroyWindow();
+		copyBtn01.DestroyWindow();
+		break;
 	}
 
 	CRect rc;
@@ -405,13 +412,30 @@ void C업무용Dlg::jobKindSet()
 		copyBtn01.Create(_T("결과를 클립보드에 복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
 
 		break;
+	case 6:
+		lastIndex = 6;
+
+		MoveWindow(rc.left, rc.top, 730, 750);
+		a.left = 20; a.right = 370; a.top = 80; a.bottom = 700;
+		source01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, source01_ID);
+		source01.ShowScrollBar(SB_VERT);
+		a.left = 380; a.right = 700;
+		result01.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL, a, this, result01_ID);
+		result01.ShowScrollBar(SB_VERT);
+		a.left = 260; a.right = 500; a.top = 10; a.bottom = 40;
+		convertBtn01.Create(_T("중복 개수 구하기"), WS_VISIBLE | WS_CHILD, a, this, convertBtn01_ID);
+		a.left = 360; a.right = 700; a.top = 45; a.bottom = 75;
+		copyBtn01.Create(_T("결과를 클립보드에 복사"), WS_VISIBLE | WS_CHILD | BS_MULTILINE, a, this, copyBtn01_ID);
+
+		break;
 	}
 }
 
 void C업무용Dlg::convertBtn01Click()
 {
 	LPTSTR a/*, b*/, c, c_p, c_p2, c_p3, x, a_, x_, a_p, a_p2;
-	int count1, count2;
+	LPTSTR dupList[dupSize];
+	int count1, count2, count3, count4, count5, count6;
 	CString d;
 	HWND fwnd;
 	switch(lastIndex)
@@ -730,6 +754,132 @@ convertBtn01_case5_2:
 		free(a); free(c);
 
 		break;
+	case 6:
+		c = (LPTSTR)malloc((source01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
+		source01.GetWindowTextW(c, source01.GetWindowTextLengthW() + 1);
+		d.Format(_T(""));
+
+		c_p = c;
+		count1 = 0;
+		count2 = 0;
+		while(*c_p != '\0')
+		{
+			while(*c_p == ' ' || *c_p == '\n' || *c_p == '\r') ++c_p;
+			if(*c_p == '\0') break;
+			if(dupSize <= count1)
+			{
+				CString sTmp;
+				sTmp.Format(_T("상한치 %d 개에 도달하여 그 이후의 열은 중복 개수를 비교하지 않습니다."), dupSize);
+				MessageBox(sTmp);
+				goto convertBtn01_case6_1;
+			}
+			dupList[count1] = c_p;
+			while(*c_p != '\0' && *c_p != '\n')
+			{
+				++c_p;
+			}
+			c_p3 = c_p;
+			if(*c_p == '\0') --c_p3;
+			else ++c_p;
+			while(*c_p3 == ' ' || *c_p3 == '\n' || *c_p3 == '\r') --c_p3;
+			*(c_p3 + 1) = '\0';
+			++count1;
+		}
+		
+convertBtn01_case6_1:
+		if(count2 < count1)
+		{
+			count3 = 0;
+			while(count3 < count2)
+			{
+				count4 = 0;
+				count5 = wcslen(dupList[count3]);
+				if(count5 == wcslen(dupList[count2]))
+				{
+					while(count4 < count5)
+					{
+						if(*(dupList[count3] + count4) != *(dupList[count2] + count4)) break;
+						++count4;
+						if(count5 <= count4)
+						{
+							++count2;
+							goto convertBtn01_case6_1;
+						}
+					}
+				}
+				++count3;
+			}
+			++count3;
+			count6 = 0;
+			while(count3 < count1)
+			{
+				count4 = 0;
+				count5 = wcslen(dupList[count3]);
+				if(count5 == wcslen(dupList[count2]))
+				{
+					while(count4 < count5)
+					{
+						if(*(dupList[count3] + count4) != *(dupList[count2] + count4)) break;
+						++count4;
+						if(count5 <= count4) ++count6;
+					}
+				}
+				++count3;
+			}
+
+			if(0 < count6) d.Format(_T("[ %s ]가 %d번 중복되었습니다."), dupList[count2], count6 + 1);
+			else
+			{
+				++count2;
+				goto convertBtn01_case6_1;
+			}
+			++count2;
+		}
+		while(count2 < count1)
+		{
+			count3 = 0;
+			while(count3 < count2)
+			{
+				count4 = 0;
+				count5 = wcslen(dupList[count3]);
+				if(count5 == wcslen(dupList[count2]))
+				{
+					while(count4 < count5)
+					{
+						if(*(dupList[count3] + count4) != *(dupList[count2] + count4)) break;
+						++count4;
+						if(count5 <= count4) goto convertBtn01_case6_2;
+					}
+				}
+				++count3;
+			}
+			++count3;
+			count6 = 0;
+			while(count3 < count1)
+			{
+				count4 = 0;
+				count5 = wcslen(dupList[count3]);
+				if(count5 == wcslen(dupList[count2]))
+				{
+					while(count4 < count5)
+					{
+						if(*(dupList[count3] + count4) != *(dupList[count2] + count4)) break;
+						++count4;
+						if(count5 <= count4) ++count6;
+					}
+				}
+				++count3;
+			}
+
+			if(0 < count6) d.Format(_T("%s\r\n[ %s ]가 %d번 중복되었습니다."), d, dupList[count2], count6 + 1);
+convertBtn01_case6_2:
+			++count2;
+		}
+		result01.SetWindowTextW(d);
+
+		free(c);
+
+		break;
 	}
 }
 
@@ -748,6 +898,7 @@ void C업무용Dlg::copyBtn01Click()
 	case 1:
 	case 4:
 	case 5:
+	case 6:
 		//LPCSTR은 멀티바이트, 클립보드에 복사하면 멀티바이트로 저장됨.
 		txt_org = (LPTSTR)malloc((result01.GetWindowTextLengthW() + 1) * sizeof(LPTSTR));
 		if(!txt_org) return;
