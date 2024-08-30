@@ -17,6 +17,7 @@
 #define macroBtn_ID 2001
 #define macroDelBtn_ID 3001
 #define timer01_ID 9624956
+#define dupSize 2000
 
 // C업무용Dlg 대화 상자
 class C업무용Dlg : public CDialogEx
